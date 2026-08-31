@@ -188,6 +188,7 @@
                     <div class="relative z-10 flex flex-col items-center">
                         <div id="timer-display" class="text-4xl font-mono font-bold text-white tracking-wider">00:00</div>
                         <div id="timer-mode-label" class="text-[10px] uppercase tracking-widest text-clinical-blue mt-1 font-semibold">Ronda de Guardia</div>
+                        <button id="btn-pip" class="mt-3 text-[10px] text-slate-400 hover:text-white transition bg-slate-800/80 px-2.5 py-1.5 rounded border border-slate-700" title="Reloj Flotante (Picture in Picture)"><i class="fa-regular fa-window-restore mr-1"></i>Mini-reloj</button>
                     </div>
                 </div>
 
@@ -222,8 +223,8 @@
             </div>
         </section>
 
-        <!-- MODULE 2: GESTOR DE TAREAS (HISTORIA CLÍNICA) -->
-        <section class="glass-panel p-6 lg:col-span-4 flex flex-col h-[500px]">
+        <!-- MODULE 2: EVOLUCIONES (TO-DO) -->
+        <section class="glass-panel p-6 lg:col-span-4 flex flex-col h-full min-h-[500px]">
             <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
                 <h2 class="text-sm font-medium text-slate-300 uppercase tracking-wide"><i class="fa-solid fa-clipboard-user mr-2 text-clinical-blue"></i>Evoluciones (To-Do)</h2>
                 <button id="btn-clear-tasks" class="text-xs text-clinical-red hover:text-red-400 transition" title="Eliminar todas las tareas"><i class="fa-solid fa-trash-can"></i> Limpiar</button>
@@ -294,7 +295,7 @@
             <!-- MODULE 6: INTERCONSULTAS (PEERJS) -->
             <section class="glass-panel p-6 flex flex-col">
                 <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
-                    <h2 class="text-sm font-medium text-slate-300 uppercase tracking-wide"><i class="fa-solid fa-network-wired mr-2 text-clinical-blue"></i>Interconsultas P2P</h2>
+                    <h2 class="text-sm font-medium text-slate-300 uppercase tracking-wide"><i class="fa-solid fa-network-wired mr-2 text-clinical-blue"></i>Interconsultas</h2>
                     <div class="flex items-center gap-2">
                         <span class="text-[9px] uppercase tracking-widest text-slate-500 font-bold" id="peer-status-text">Iniciando...</span>
                         <div id="peer-led" class="w-2.5 h-2.5 rounded-full bg-slate-600 transition-all duration-300"></div>
@@ -683,6 +684,56 @@
             const s = (sec % 60).toString().padStart(2, '0');
             return `${m}:${s}`;
         }
+        
+        // --- PIP LOGIC ---
+        const pipCanvas = document.createElement('canvas');
+        pipCanvas.width = 400; pipCanvas.height = 400;
+        const pipCtx = pipCanvas.getContext('2d');
+        const pipVideo = document.createElement('video');
+        pipVideo.muted = true;
+        pipVideo.playsInline = true;
+        
+        let pipStream = null;
+        function updatePiPCanvas() {
+            if(!document.pictureInPictureElement) return;
+
+            // Background
+            pipCtx.fillStyle = '#020617';
+            pipCtx.fillRect(0, 0, 400, 400);
+            
+            // Outer Ring
+            pipCtx.strokeStyle = '#1e293b';
+            pipCtx.lineWidth = 15;
+            pipCtx.beginPath();
+            pipCtx.arc(200, 200, 160, 0, Math.PI * 2);
+            pipCtx.stroke();
+
+            // Progress Ring
+            const mins = state.config.times[state.timer.mode === 'short-break' ? 'shortBreak' : (state.timer.mode === 'long-break' ? 'longBreak' : 'study')];
+            const total = mins * 60;
+            const prog = ((total - state.timer.timeLeft) / total);
+            
+            pipCtx.strokeStyle = state.timer.mode === 'study' ? '#0ea5e9' : (state.timer.mode === 'short-break' ? '#10b981' : '#8b5cf6');
+            pipCtx.lineCap = 'round';
+            pipCtx.beginPath();
+            pipCtx.arc(200, 200, 160, -Math.PI/2, (-Math.PI/2) + (Math.PI * 2 * (1 - prog)), false);
+            pipCtx.stroke();
+
+            // Text
+            pipCtx.fillStyle = '#ffffff';
+            pipCtx.font = 'bold 80px monospace';
+            pipCtx.textAlign = 'center';
+            pipCtx.textBaseline = 'middle';
+            pipCtx.fillText(formatTime(state.timer.timeLeft), 200, 180);
+
+            pipCtx.font = 'bold 20px sans-serif';
+            pipCtx.fillStyle = state.timer.mode === 'study' ? '#0ea5e9' : (state.timer.mode === 'short-break' ? '#10b981' : '#8b5cf6');
+            pipCtx.fillText(els.timerLabel.textContent.toUpperCase(), 200, 250);
+            
+            pipCtx.font = '16px sans-serif';
+            pipCtx.fillStyle = '#94a3b8';
+            pipCtx.fillText(els.activeSubjectName.textContent, 200, 280);
+        }
 
         // --- TIMER LOGIC ---
         function setTimerMode(mode) {
@@ -777,6 +828,26 @@
             clearInterval(state.timer.interval);
             state.timer.isRunning = false;
             completePhase();
+        });
+
+        const btnPip = document.getElementById('btn-pip');
+        btnPip.addEventListener('click', async () => {
+            if (document.pictureInPictureElement) {
+                document.exitPictureInPicture();
+                return;
+            }
+            if (!pipStream) {
+                updatePiPCanvas();
+                pipStream = pipCanvas.captureStream(10);
+                pipVideo.srcObject = pipStream;
+                await pipVideo.play();
+            }
+            try {
+                await pipVideo.requestPictureInPicture();
+            } catch (err) {
+                console.error("PiP error:", err);
+                alert('Tu navegador no soporta el Mini-Reloj flotante.');
+            }
         });
 
         els.modeBtns.forEach(btn => btn.addEventListener('click', (e) => {
@@ -1247,8 +1318,19 @@
             state.subjects.forEach(sub => {
                 const isActive = sub.id === state.timer.activeSubjectId;
                 const btn = document.createElement('button');
-                btn.className = `text-[10px] py-1 px-2 rounded-full border transition ${isActive ? '' : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'}`;
-                btn.textContent = sub.name;
+                btn.className = `flex flex-col items-center py-1.5 px-3 rounded-lg border transition ${isActive ? '' : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'}`;
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = "text-[11px] font-medium";
+                nameSpan.textContent = sub.name;
+                
+                const hrsSpan = document.createElement('span');
+                hrsSpan.className = "text-[9px] opacity-70 mt-0.5";
+                hrsSpan.innerHTML = `<i class="fa-solid fa-clock-rotate-left mr-1"></i>${(sub.minutes/60).toFixed(1)}h`;
+
+                btn.appendChild(nameSpan);
+                btn.appendChild(hrsSpan);
+
                 if(isActive) {
                     btn.style.backgroundColor = `${sub.color}20`;
                     btn.style.color = sub.color;
