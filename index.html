@@ -228,31 +228,54 @@
             </div>
         </section>
 
-        <!-- MODULE 2: EVOLUCIONES (TO-DO) -->
-        <section class="glass-panel p-6 lg:col-span-4 flex flex-col h-full min-h-[500px]">
-            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
-                <h2 class="text-sm font-medium text-slate-300 uppercase tracking-wide"><i class="fa-solid fa-clipboard-user mr-2 text-clinical-blue"></i>Evoluciones (To-Do)</h2>
-                <button id="btn-clear-tasks" class="text-xs text-clinical-red hover:text-red-400 transition" title="Eliminar todas las tareas"><i class="fa-solid fa-trash-can"></i> Limpiar</button>
-            </div>
-            
-            <div class="flex-grow overflow-y-auto mb-4 pr-2" id="task-list">
-                <!-- Tasks injected here -->
-            </div>
-
-            <form id="task-form" class="mt-auto flex flex-col gap-2">
-                <div class="flex gap-2">
-                    <input type="text" id="task-input" placeholder="Ej: Leer Farmacodependencias..." 
-                           class="w-full bg-slate-800/50 border border-slate-700 rounded px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-clinical-blue">
-                    <button type="submit" class="bg-clinical-blue/20 text-clinical-blue border border-clinical-blue/30 hover:bg-clinical-blue hover:text-white px-3 py-2 rounded transition">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
+        <!-- COLUMN 2: EVOLUCIONES & AGENDA -->
+        <div class="lg:col-span-4 flex flex-col gap-6 h-full">
+            <!-- MODULE 2: EVOLUCIONES (TO-DO) -->
+            <section class="glass-panel p-6 flex flex-col min-h-[500px] flex-grow">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                    <h2 class="text-sm font-medium text-slate-300 uppercase tracking-wide"><i class="fa-solid fa-clipboard-user mr-2 text-clinical-blue"></i>Evoluciones (To-Do)</h2>
+                    <button id="btn-clear-tasks" class="text-xs text-clinical-red hover:text-red-400 transition" title="Eliminar todas las tareas"><i class="fa-solid fa-trash-can"></i> Limpiar</button>
                 </div>
-                <label class="flex items-center gap-2 text-[10px] text-slate-400 cursor-pointer w-max">
-                    <input type="checkbox" id="task-pages-check" class="rounded border-slate-700 bg-slate-800 text-clinical-blue focus:ring-clinical-blue">
-                    ¿Usar contador de páginas en esta tarea?
-                </label>
-            </form>
-        </section>
+                
+                <div class="flex-grow overflow-y-auto mb-4 pr-2" id="task-list">
+                    <!-- Tasks injected here -->
+                </div>
+
+                <form id="task-form" class="mt-auto flex flex-col gap-2">
+                    <div class="flex gap-2">
+                        <input type="text" id="task-input" placeholder="Ej: Leer Farmacodependencias..." 
+                               class="w-full bg-slate-800/50 border border-slate-700 rounded px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-clinical-blue">
+                        <button type="submit" class="bg-clinical-blue/20 text-clinical-blue border border-clinical-blue/30 hover:bg-clinical-blue hover:text-white px-3 py-2 rounded transition">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <label class="flex items-center gap-2 text-[10px] text-slate-400 cursor-pointer w-max">
+                        <input type="checkbox" id="task-pages-check" class="rounded border-slate-700 bg-slate-800 text-clinical-blue focus:ring-clinical-blue">
+                        ¿Usar contador de páginas en esta tarea?
+                    </label>
+                </form>
+            </section>
+
+            <!-- MODULE: AGENDA DE GUARDIAS -->
+            <section class="glass-panel p-6 flex flex-col">
+                <h2 class="text-sm font-medium text-slate-300 uppercase tracking-wide mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-calendar-days mr-2 text-clinical-blue"></i>Agenda de Guardias y Turnos</h2>
+                
+                <div id="calendar-setup" class="flex flex-col gap-2 mb-2">
+                    <p class="text-[10px] text-slate-400">Pega aquí el ID de tu Google Calendar público o el código de inserción:</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="calendar-input" placeholder="Ej: tunombre@gmail.com o src=..." class="w-full bg-slate-800/50 border border-slate-700 rounded px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-clinical-blue">
+                        <button id="btn-save-calendar" class="bg-clinical-blue/20 text-clinical-blue border border-clinical-blue/30 hover:bg-clinical-blue hover:text-white px-3 py-2 rounded transition" title="Guardar Calendario">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="calendar-view" class="hidden relative w-full h-[300px] rounded overflow-hidden border border-slate-700 bg-slate-900/80">
+                    <iframe id="calendar-iframe" class="absolute inset-0 w-full h-full" src="" frameborder="0" scrolling="no"></iframe>
+                    <button id="btn-edit-calendar" class="absolute top-2 right-2 bg-slate-800/80 hover:bg-slate-700 text-white w-6 h-6 rounded flex items-center justify-center transition border border-slate-600 shadow-md" title="Editar Calendario"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                </div>
+            </section>
+        </div>
 
         <!-- COLUMN 3: MULTIMEDIA & ANALÍTICAS -->
         <div class="lg:col-span-4 flex flex-col gap-6">
@@ -728,6 +751,58 @@
             }
         });
 
+        // --- CALENDAR INTEGRATION ---
+        const calEls = {
+            setup: document.getElementById('calendar-setup'),
+            view: document.getElementById('calendar-view'),
+            input: document.getElementById('calendar-input'),
+            btnSave: document.getElementById('btn-save-calendar'),
+            btnEdit: document.getElementById('btn-edit-calendar'),
+            iframe: document.getElementById('calendar-iframe')
+        };
+
+        function extractCalendarId(input) {
+            if (input.includes('src=')) {
+                const match = input.match(/src=([^&"]+)/);
+                if (match) return decodeURIComponent(match[1]);
+            }
+            return input.trim();
+        }
+
+        function loadCalendar(id) {
+            if (id) {
+                safeSet('cf_gcalId', id);
+                calEls.setup.classList.add('hidden');
+                calEls.view.classList.remove('hidden');
+                // Construct embed URL with Agenda mode and dark-ish styling
+                const url = `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(id)}&mode=AGENDA&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&bgcolor=%230f172a&color=%23039BE5`;
+                calEls.iframe.src = url;
+            } else {
+                calEls.setup.classList.remove('hidden');
+                calEls.view.classList.add('hidden');
+                calEls.iframe.src = "";
+            }
+        }
+
+        calEls.btnSave.addEventListener('click', () => {
+            const val = calEls.input.value;
+            const id = extractCalendarId(val);
+            if (id) {
+                loadCalendar(id);
+            } else {
+                alert('ID de calendario inválido');
+            }
+        });
+
+        calEls.btnEdit.addEventListener('click', () => {
+            calEls.setup.classList.remove('hidden');
+            calEls.view.classList.add('hidden');
+            calEls.input.value = safeGet('cf_gcalId', '');
+        });
+
+        const savedCal = safeGet('cf_gcalId', null);
+        if (savedCal) loadCalendar(savedCal);
+
         // --- CHARTS ---
         let subjectChart, weeklyChart;
 
@@ -891,6 +966,7 @@
             updatePiPCanvas();
             
             document.title = `${formatTime(state.timer.timeLeft)} - ClinicalFocus`;
+            if (typeof syncPopup === 'function') syncPopup();
         }
 
         function timerTick() {
@@ -932,6 +1008,25 @@
             }
         }
 
+        function syncPopup() {
+            if (typeof popupWin !== 'undefined' && popupWin && !popupWin.closed) {
+                const timeEl = popupWin.document.getElementById('popup-time');
+                const modeEl = popupWin.document.getElementById('popup-mode');
+                if (timeEl && els.timerDisplay) {
+                    timeEl.textContent = els.timerDisplay.textContent;
+                }
+                if (modeEl) {
+                    let modeTxt = state.timer.mode === 'study' ? 'EN GUARDIA' : 'EN DESCANSO';
+                    if (!state.timer.isRunning) modeTxt += ' (PAUSADO)';
+                    modeEl.textContent = modeTxt;
+                    timeEl.style.color = state.timer.mode === 'study' ? '#38bdf8' : '#10b981';
+                    
+                    const screen = popupWin.document.getElementById('popup-screen');
+                    if(screen) screen.style.borderColor = state.timer.mode === 'study' ? '#0ea5e9' : '#10b981';
+                }
+            }
+        }
+
         els.btnStart.addEventListener('click', () => {
             if (!state.timer.isRunning) {
                 state.timer.isRunning = true;
@@ -939,6 +1034,7 @@
                 els.btnPause.classList.remove('hidden');
                 state.timer.interval = setInterval(timerTick, 1000);
                 if (typeof audioCtx !== 'undefined' && audioCtx.state === 'suspended') audioCtx.resume();
+                syncPopup();
             }
         });
 
@@ -948,34 +1044,89 @@
             els.btnPause.classList.add('hidden');
             els.btnStart.classList.remove('hidden');
             els.btnStart.innerHTML = '<i class="fa-solid fa-play"></i>';
+            syncPopup();
         });
 
         els.btnSkip.addEventListener('click', () => {
             clearInterval(state.timer.interval);
             state.timer.isRunning = false;
             completePhase();
+            syncPopup();
         });
 
         const btnPip = document.getElementById('btn-pip');
         const iconPip = document.getElementById('icon-pip');
-        const pomodoroPanel = document.getElementById('pomodoro-panel');
-        let isPiP = false;
+        let popupWin = null;
         
-        btnPip.addEventListener('click', () => {
-            isPiP = !isPiP;
-            if (isPiP) {
-                // Shrink and float
-                pomodoroPanel.classList.add('fixed', 'bottom-4', 'left-4', 'z-[100]', 'scale-75', 'shadow-[0_0_50px_rgba(0,0,0,0.8)]', 'w-80', 'bg-slate-900', 'border', 'border-slate-700', 'rounded-2xl');
-                pomodoroPanel.classList.remove('flex-grow');
-                iconPip.className = 'fa-solid fa-expand mr-1';
-                btnPip.innerHTML = `<i class="fa-solid fa-expand mr-1" id="icon-pip"></i>Expandir`;
-            } else {
-                // Restore
-                pomodoroPanel.classList.remove('fixed', 'bottom-4', 'left-4', 'z-[100]', 'scale-75', 'shadow-[0_0_50px_rgba(0,0,0,0.8)]', 'w-80', 'bg-slate-900', 'border', 'border-slate-700', 'rounded-2xl');
-                pomodoroPanel.classList.add('flex-grow');
-                iconPip.className = 'fa-regular fa-window-restore mr-1';
-                btnPip.innerHTML = `<i class="fa-regular fa-window-restore mr-1" id="icon-pip"></i>Mini-reloj`;
+        btnPip.addEventListener('click', async () => {
+            if (popupWin && !popupWin.closed) {
+                popupWin.focus();
+                return;
             }
+            
+            // Try Document PiP API first (Chrome 116+)
+            if ('documentPictureInPicture' in window) {
+                try {
+                    popupWin = await window.documentPictureInPicture.requestWindow({
+                        width: 320,
+                        height: 220
+                    });
+                } catch (e) {
+                    console.log('Document PiP failed, falling back to window.open', e);
+                }
+            }
+            
+            // Fallback to classic Popup
+            if (!popupWin) {
+                popupWin = window.open('', 'MiniReloj', 'width=320,height=220,popup=1');
+            }
+
+            if (!popupWin) {
+                alert('Por favor, permite las ventanas emergentes (popups) para usar el Mini-reloj flotante.');
+                return;
+            }
+            
+            // Inject Medical Pager UI
+            popupWin.document.write(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Buscapersonas Médico</title>
+                    <script src="https://cdn.tailwindcss.com"></script>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                    <style>
+                        body { background-color: #0f172a; color: #e2e8f0; font-family: ui-sans-serif, system-ui, -apple-system; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+                        .pager-container { background: #1e293b; border: 2px solid #334155; border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; width: 90%; max-width: 300px; }
+                        .screen { background: #020617; border: 2px solid #0ea5e9; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(14, 165, 233, 0.2); transition: border-color 0.3s; }
+                        .time { font-size: 3rem; font-family: monospace; font-weight: bold; color: #38bdf8; text-shadow: 0 0 8px rgba(56, 189, 248, 0.6); margin: 0; line-height: 1; transition: color 0.3s; }
+                        .mode { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: #94a3b8; margin-top: 8px; font-weight: bold; }
+                        .btn { background: #0ea5e9; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; transition: background 0.2s; font-weight: bold; }
+                        .btn:hover { background: #0284c7; }
+                    </style>
+                </head>
+                <body>
+                    <div class="pager-container">
+                        <div class="screen" id="popup-screen">
+                            <div class="time" id="popup-time">00:00</div>
+                            <div class="mode" id="popup-mode">EN GUARDIA</div>
+                        </div>
+                        <button class="btn" id="btn-return"><i class="fa-solid fa-arrow-right-to-bracket mr-1"></i> Volver</button>
+                    </div>
+                    <script>
+                        document.getElementById('btn-return').addEventListener('click', () => {
+                            window.close();
+                        });
+                    </script>
+                </body>
+                </html>
+            `);
+            popupWin.document.close();
+            
+            // Cleanup on close
+            popupWin.addEventListener('pagehide', () => {
+                popupWin = null;
+            });
         });
 
         els.modeBtns.forEach(btn => btn.addEventListener('click', (e) => {
