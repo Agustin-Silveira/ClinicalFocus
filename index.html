@@ -369,6 +369,17 @@
                     <div class="text-right mt-1">
                         <span class="text-[9px] uppercase tracking-widest text-slate-500" id="remote-mode">Esperando estado...</span>
                     </div>
+
+                    <!-- Chat en vivo -->
+                    <div id="peer-chat-container" class="mt-3 flex flex-col border border-slate-700 bg-slate-900/50 rounded h-32 overflow-hidden">
+                        <div id="peer-chat-messages" class="flex-grow overflow-y-auto p-2 space-y-2 flex flex-col">
+                            <!-- Messages injected here -->
+                        </div>
+                        <form id="peer-chat-form" class="flex border-t border-slate-700 bg-slate-800">
+                            <input type="text" id="peer-chat-input" class="flex-grow bg-transparent text-white px-2 py-1.5 text-[10px] focus:outline-none" placeholder="Escribe un mensaje..." autocomplete="off">
+                            <button type="submit" class="text-clinical-blue hover:text-white px-3 transition bg-slate-700/50 hover:bg-clinical-blue/50"><i class="fa-solid fa-paper-plane"></i></button>
+                        </form>
+                    </div>
                 </div>
             </section>
 
@@ -781,7 +792,7 @@
                 }
             });
 
-            els.btnStart.innerHTML = '<i class="fa-solid fa-play"></i> Iniciar';
+            els.btnStart.innerHTML = '<i class="fa-solid fa-play"></i>';
             els.btnStart.classList.remove('hidden');
             els.btnPause.classList.add('hidden');
             
@@ -796,14 +807,10 @@
             const total = mins * 60;
             const prog = ((total - state.timer.timeLeft) / total) * 283;
             els.timerProgress.style.strokeDashoffset = prog;
-            const activeBtn = document.getElementById(`mode-${state.timer.mode}`);
-            const isStudy = state.timer.mode === 'study';
-            const colorClass = isStudy ? 'clinical-blue' : 'clinical-green';
             
-            activeBtn.className = `mode-btn text-xs py-2 px-1 rounded transition border text-${colorClass} bg-${colorClass}/10 border-${colorClass}/30`;
-            els.timerProgress.setAttribute('stroke', isStudy ? '#0ea5e9' : '#10b981');
-            els.timerLabel.textContent = isStudy ? 'Guardia' : 'Descanso';
-            els.timerLabel.className = `text-[10px] uppercase tracking-widest text-${colorClass} mt-1 font-semibold`;
+            els.timerProgress.style.stroke = state.timer.mode === 'study' ? '#0ea5e9' : (state.timer.mode === 'short-break' ? '#10b981' : '#8b5cf6');
+
+            updatePiPCanvas();
             
             document.title = `${formatTime(state.timer.timeLeft)} - ClinicalFocus`;
         }
@@ -862,7 +869,7 @@
             state.timer.isRunning = false;
             els.btnPause.classList.add('hidden');
             els.btnStart.classList.remove('hidden');
-            els.btnStart.innerHTML = '<i class="fa-solid fa-play"></i> Reanudar';
+            els.btnStart.innerHTML = '<i class="fa-solid fa-play"></i>';
         });
 
         els.btnSkip.addEventListener('click', () => {
@@ -1657,7 +1664,11 @@
             subject: document.getElementById('remote-subject'),
             hours: document.getElementById('remote-hours'),
             progressBar: document.getElementById('remote-progress-bar'),
-            mode: document.getElementById('remote-mode')
+            mode: document.getElementById('remote-mode'),
+            chatContainer: document.getElementById('peer-chat-container'),
+            chatMessages: document.getElementById('peer-chat-messages'),
+            chatForm: document.getElementById('peer-chat-form'),
+            chatInput: document.getElementById('peer-chat-input')
         };
 
         // Load saved Profile
@@ -1747,6 +1758,8 @@
             conn.on('data', (data) => {
                 if (data.type === 'state_sync') {
                     renderRemoteState(data.payload);
+                } else if (data.type === 'chat') {
+                    appendChatMessage(data.sender || 'Amigo', data.text, false);
                 }
             });
 
@@ -1757,6 +1770,25 @@
                 peerEls.card.classList.remove('flex');
             });
         }
+
+        function appendChatMessage(sender, text, isMe) {
+            const div = document.createElement('div');
+            div.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
+            div.innerHTML = `<span class="px-2 py-1 rounded max-w-[85%] ${isMe ? 'bg-clinical-blue/20 text-clinical-blue' : 'bg-slate-800 text-slate-300'} break-words"><b>${sender}:</b> ${text}</span>`;
+            peerEls.chatMessages.appendChild(div);
+            peerEls.chatMessages.scrollTop = peerEls.chatMessages.scrollHeight;
+        }
+
+        peerEls.chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = peerEls.chatInput.value.trim();
+            if(text && peerConnection) {
+                const myName = peerEls.nameInput.value.trim() || 'Yo';
+                peerConnection.send({ type: 'chat', text: text, sender: myName });
+                appendChatMessage(myName, text, true);
+                peerEls.chatInput.value = '';
+            }
+        });
 
         function updatePeerUI(status) {
             if (status === 'standby') {
