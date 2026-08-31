@@ -158,8 +158,11 @@
                             <div class="text-sm font-bold text-white"><i class="fa-solid fa-user-injured mr-2"></i>Paciente #<span id="patient-id">402</span></div>
                             <div id="patient-diagnosis" class="text-[10px] text-clinical-red font-mono mt-1">ESTADO CRÍTICO</div>
                         </div>
-                        <div class="text-right">
+                        <div class="flex flex-col items-end">
                             <div class="text-lg font-mono font-bold" id="patient-hp-text">20%</div>
+                            <button id="btn-kill-patient" class="text-[9px] uppercase tracking-widest text-slate-500 hover:text-clinical-red transition mt-1" title="Cancelar guardia">
+                                <i class="fa-solid fa-skull"></i> Matar Paciente
+                            </button>
                         </div>
                     </div>
 
@@ -234,14 +237,18 @@
                 <!-- Tasks injected here -->
             </div>
 
-            <form id="task-form" class="mt-auto">
+            <form id="task-form" class="mt-auto flex flex-col gap-2">
                 <div class="flex gap-2">
-                    <input type="text" id="task-input" placeholder="Nueva indicación médica..." 
+                    <input type="text" id="task-input" placeholder="Ej: Leer Farmacodependencias..." 
                            class="w-full bg-slate-800/50 border border-slate-700 rounded px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-clinical-blue">
                     <button type="submit" class="bg-clinical-blue/20 text-clinical-blue border border-clinical-blue/30 hover:bg-clinical-blue hover:text-white px-3 py-2 rounded transition">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
+                <label class="flex items-center gap-2 text-[10px] text-slate-400 cursor-pointer w-max">
+                    <input type="checkbox" id="task-pages-check" class="rounded border-slate-700 bg-slate-800 text-clinical-blue focus:ring-clinical-blue">
+                    ¿Usar contador de páginas en esta tarea?
+                </label>
             </form>
         </section>
 
@@ -602,7 +609,7 @@
                 safeSet('cf_youtubeId', id);
                 els.ytEmpty.classList.add('hidden');
                 els.ytIframe.classList.remove('hidden');
-                els.ytIframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=0`;
+                els.ytIframe.src = `https://www.youtube.com/embed/${id}?autoplay=0`;
             } else {
                 els.ytEmpty.classList.remove('hidden');
                 els.ytIframe.classList.add('hidden');
@@ -692,6 +699,14 @@
         const pipVideo = document.createElement('video');
         pipVideo.muted = true;
         pipVideo.playsInline = true;
+        pipVideo.style.position = 'fixed';
+        pipVideo.style.bottom = '0';
+        pipVideo.style.right = '0';
+        pipVideo.style.width = '1px';
+        pipVideo.style.height = '1px';
+        pipVideo.style.opacity = '0.01';
+        pipVideo.style.pointerEvents = 'none';
+        document.body.appendChild(pipVideo);
         
         let pipStream = null;
         function updatePiPCanvas() {
@@ -737,12 +752,26 @@
 
         // --- TIMER LOGIC ---
         function setTimerMode(mode) {
-            clearInterval(state.timer.interval);
-            state.timer.isRunning = false;
             state.timer.mode = mode;
+            state.timer.isRunning = false;
+            clearInterval(state.timer.interval);
             
             const mins = state.config.times[mode === 'short-break' ? 'shortBreak' : (mode === 'long-break' ? 'longBreak' : 'study')];
             state.timer.timeLeft = mins * 60;
+            
+            els.modeBtns.forEach(btn => {
+                if(btn.dataset.mode === mode) {
+                    btn.classList.add('bg-slate-700', 'text-white');
+                    btn.classList.remove('text-slate-400');
+                    els.timerLabel.textContent = btn.textContent;
+                } else {
+                    btn.classList.remove('bg-slate-700', 'text-white');
+                    btn.classList.add('text-slate-400');
+                }
+            });
+
+            els.btnStart.innerHTML = '<i class="fa-solid fa-play"></i> Iniciar';
+            els.btnPause.classList.add('hidden');
             
             updateTimerUI();
             updateAudioTheme(mode);
@@ -755,11 +784,6 @@
             const total = mins * 60;
             const prog = ((total - state.timer.timeLeft) / total) * 283;
             els.timerProgress.style.strokeDashoffset = prog;
-
-            // Update UI Colors
-            els.modeBtns.forEach(b => {
-                b.className = 'mode-btn text-xs py-2 px-1 rounded transition border text-slate-400 bg-slate-800 border-transparent hover:bg-slate-700';
-            });
             const activeBtn = document.getElementById(`mode-${state.timer.mode}`);
             const isStudy = state.timer.mode === 'study';
             const colorClass = isStudy ? 'clinical-blue' : 'clinical-green';
@@ -831,7 +855,7 @@
         });
 
         const btnPip = document.getElementById('btn-pip');
-        btnPip.addEventListener('click', async () => {
+        btnPip.addEventListener('click', () => {
             if (document.pictureInPictureElement) {
                 document.exitPictureInPicture();
                 return;
@@ -840,14 +864,20 @@
                 updatePiPCanvas();
                 pipStream = pipCanvas.captureStream(10);
                 pipVideo.srcObject = pipStream;
-                await pipVideo.play();
             }
-            try {
-                await pipVideo.requestPictureInPicture();
-            } catch (err) {
-                console.error("PiP error:", err);
-                alert('Tu navegador no soporta el Mini-Reloj flotante.');
-            }
+            pipVideo.play().then(() => {
+                if (pipVideo.requestPictureInPicture) {
+                    pipVideo.requestPictureInPicture().catch(err => {
+                        console.error("PiP error:", err);
+                        alert('Tu navegador bloqueó el Mini-Reloj flotante. Intenta en Chrome/Edge.');
+                    });
+                } else {
+                    alert('Tu navegador no soporta el Mini-Reloj flotante.');
+                }
+            }).catch(e => {
+                console.error("Video play error:", e);
+                alert('No se pudo reproducir el reloj en segundo plano.');
+            });
         });
 
         els.modeBtns.forEach(btn => btn.addEventListener('click', (e) => {
@@ -879,6 +909,19 @@
                     patientId: Math.floor(Math.random() * 900) + 100
                 };
                 animState.isAdmitting = true;
+                animState.tomasX = -20;
+                saveState();
+                initGameUI();
+            }
+        });
+
+        els.btnKill = document.getElementById('btn-kill-patient');
+        els.btnKill.addEventListener('click', () => {
+            if (confirm('¿Estás seguro de que deseas abandonar a este paciente (cancelar la guardia)? El progreso del turno se perderá.')) {
+                state.game.active = false;
+                state.game.currentPomos = 0;
+                animState.isAdmitting = false;
+                animState.isWalking = false;
                 animState.tomasX = -20;
                 saveState();
                 initGameUI();
@@ -1355,8 +1398,19 @@
             
             state.tasks.forEach((task, idx) => {
                 const div = document.createElement('div');
-                div.className = `flex items-start gap-3 p-3 mb-2 rounded border ${task.completed ? 'border-slate-800 bg-slate-900/40 task-completed' : 'border-slate-700 bg-slate-800/80'} transition-all`;
+                div.className = `flex items-center gap-3 p-3 mb-2 rounded border ${task.completed ? 'border-slate-800 bg-slate-900/40 task-completed' : 'border-slate-700 bg-slate-800/80'} transition-all`;
                 
+                let pagesHtml = '';
+                if (task.hasPages) {
+                    pagesHtml = `
+                        <div class="flex items-center gap-1.5 ml-2 bg-slate-900 px-2 py-1 rounded border border-slate-700">
+                            <button class="w-5 h-5 flex items-center justify-center bg-slate-700 hover:bg-slate-600 rounded text-[10px] text-white transition" onclick="updateTaskPages(${idx}, -1)"><i class="fa-solid fa-minus"></i></button>
+                            <span class="text-xs font-mono w-6 text-center text-clinical-blue font-bold">${task.pages || 0}</span>
+                            <button class="w-5 h-5 flex items-center justify-center bg-slate-700 hover:bg-slate-600 rounded text-[10px] text-white transition" onclick="updateTaskPages(${idx}, 1)"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    `;
+                }
+
                 div.innerHTML = `
                     <button class="mt-0.5 text-lg ${task.completed ? 'text-clinical-green' : 'text-slate-500 hover:text-clinical-blue'}" onclick="toggleTask(${idx})">
                         <i class="fa-${task.completed ? 'solid fa-check-circle' : 'regular fa-circle'}"></i>
@@ -1365,7 +1419,8 @@
                         <p class="text-sm ${task.completed ? 'text-slate-500' : 'text-slate-200'}">${task.text}</p>
                         <p class="text-[10px] text-slate-500 mt-1 font-mono">${task.date}</p>
                     </div>
-                    <button class="text-slate-600 hover:text-clinical-red transition" onclick="deleteTask(${idx})">
+                    ${pagesHtml}
+                    <button class="text-slate-600 hover:text-clinical-red transition ml-2" onclick="deleteTask(${idx})">
                         <i class="fa-solid fa-trash-can text-sm"></i>
                     </button>
                 `;
@@ -1376,9 +1431,17 @@
         els.taskForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const val = els.taskInput.value.trim();
+            const hasPages = document.getElementById('task-pages-check').checked;
             if(val) {
-                state.tasks.unshift({ text: val, completed: false, date: new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'}) });
+                state.tasks.unshift({ 
+                    text: val, 
+                    completed: false, 
+                    date: new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'}),
+                    hasPages: hasPages,
+                    pages: 0
+                });
                 els.taskInput.value = '';
+                document.getElementById('task-pages-check').checked = false;
                 saveState();
                 renderTasks();
             }
@@ -1386,6 +1449,11 @@
 
         window.toggleTask = (idx) => { state.tasks[idx].completed = !state.tasks[idx].completed; saveState(); renderTasks(); };
         window.deleteTask = (idx) => { state.tasks.splice(idx, 1); saveState(); renderTasks(); };
+        window.updateTaskPages = (idx, delta) => { 
+            state.tasks[idx].pages = Math.max(0, (state.tasks[idx].pages || 0) + delta);
+            saveState();
+            renderTasks();
+        };
         
         document.getElementById('btn-clear-tasks').addEventListener('click', () => {
             if(confirm('¿Eliminar todas las evoluciones médicas?')) {
