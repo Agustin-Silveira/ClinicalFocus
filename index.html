@@ -307,43 +307,50 @@
             <section class="glass-panel p-6 flex flex-col">
                 <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
                     <h2 class="text-sm font-medium text-slate-300 uppercase tracking-wide"><i class="fa-solid fa-network-wired mr-2 text-clinical-blue"></i>Interconsultas</h2>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[9px] uppercase tracking-widest text-slate-500 font-bold" id="peer-status-text">Iniciando...</span>
-                        <div id="peer-led" class="w-2.5 h-2.5 rounded-full bg-slate-600 transition-all duration-300"></div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] uppercase tracking-widest text-slate-500 font-bold" id="peer-status-text">Iniciando...</span>
+                            <div id="peer-led" class="w-2.5 h-2.5 rounded-full bg-slate-600 transition-all duration-300"></div>
+                        </div>
+                        <button id="btn-toggle-peer-setup" class="text-slate-400 hover:text-white transition p-1" title="Mostrar/Ocultar Conexión">
+                            <i class="fa-solid fa-chevron-up transition-transform duration-300" id="icon-toggle-peer"></i>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Setup / My Info -->
-                <div class="mb-4 bg-slate-800/40 p-3 rounded border border-slate-700/50">
-                    
-                    <!-- Avatar & Name -->
-                    <div class="flex items-center gap-3 mb-3 pb-3 border-b border-slate-700/50">
-                        <div class="relative group cursor-pointer shrink-0" onclick="document.getElementById('my-avatar-upload').click()" title="Cambiar foto de perfil">
-                            <img id="my-avatar-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" class="w-10 h-10 rounded-full object-cover border border-slate-600 group-hover:border-clinical-blue transition-colors bg-slate-900">
-                            <div class="absolute inset-0 bg-black/50 rounded-full hidden group-hover:flex items-center justify-center">
-                                <i class="fa-solid fa-camera text-[10px] text-white"></i>
+                <div id="peer-setup-container" class="transition-all duration-300 overflow-hidden origin-top">
+                    <!-- Setup / My Info -->
+                    <div class="mb-4 bg-slate-800/40 p-3 rounded border border-slate-700/50">
+                        
+                        <!-- Avatar & Name -->
+                        <div class="flex items-center gap-3 mb-3 pb-3 border-b border-slate-700/50">
+                            <div class="relative group cursor-pointer shrink-0" onclick="document.getElementById('my-avatar-upload').click()" title="Cambiar foto de perfil">
+                                <img id="my-avatar-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" class="w-10 h-10 rounded-full object-cover border border-slate-600 group-hover:border-clinical-blue transition-colors bg-slate-900">
+                                <div class="absolute inset-0 bg-black/50 rounded-full hidden group-hover:flex items-center justify-center">
+                                    <i class="fa-solid fa-camera text-[10px] text-white"></i>
+                                </div>
+                                <input type="file" id="my-avatar-upload" accept="image/*" class="hidden">
                             </div>
-                            <input type="file" id="my-avatar-upload" accept="image/*" class="hidden">
+                            <div class="flex-1">
+                                <p class="text-[9px] text-slate-400 uppercase mb-0.5">Identificación Médica</p>
+                                <input type="text" id="my-peer-name" placeholder="Ej: Dra. Grey" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-clinical-blue" value="Médico de Guardia">
+                            </div>
                         </div>
-                        <div class="flex-1">
-                            <p class="text-[9px] text-slate-400 uppercase mb-0.5">Identificación Médica</p>
-                            <input type="text" id="my-peer-name" placeholder="Ej: Dra. Grey" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-clinical-blue" value="Médico de Guardia">
+
+                        <p class="text-[10px] text-slate-400 uppercase mb-1">Tu Código de Colega:</p>
+                        <div class="flex gap-2">
+                            <input type="text" id="my-peer-id" readonly class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-xs font-mono text-clinical-blue text-center cursor-copy select-all" value="Generando...">
+                            <button id="btn-copy-peer" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded transition" title="Copiar"><i class="fa-regular fa-copy"></i></button>
                         </div>
                     </div>
 
-                    <p class="text-[10px] text-slate-400 uppercase mb-1">Tu Código de Colega:</p>
-                    <div class="flex gap-2">
-                        <input type="text" id="my-peer-id" readonly class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-xs font-mono text-clinical-blue text-center cursor-copy select-all" value="Generando...">
-                        <button id="btn-copy-peer" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded transition" title="Copiar"><i class="fa-regular fa-copy"></i></button>
-                    </div>
-                </div>
-
-                <!-- Connect to friend -->
-                <div class="mb-2">
-                    <p class="text-[10px] text-slate-400 uppercase mb-1">Conectar con Colega:</p>
-                    <div class="flex gap-2">
-                        <input type="text" id="friend-peer-id" placeholder="Pegar código..." class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-clinical-blue">
-                        <button id="btn-connect-peer" class="bg-clinical-blue hover:bg-blue-500 text-white px-3 py-1.5 rounded transition text-xs font-medium">Llamar</button>
+                    <!-- Connect to friend -->
+                    <div class="mb-2">
+                        <p class="text-[10px] text-slate-400 uppercase mb-1">Conectar con Colega:</p>
+                        <div class="flex gap-2">
+                            <input type="text" id="friend-peer-id" placeholder="Pegar código..." class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-clinical-blue">
+                            <button id="btn-connect-peer" class="bg-clinical-blue hover:bg-blue-500 text-white px-3 py-1.5 rounded transition text-xs font-medium">Llamar</button>
+                        </div>
                     </div>
                 </div>
 
@@ -1694,6 +1701,9 @@
             btnCopy: document.getElementById('btn-copy-peer'),
             friendInput: document.getElementById('friend-peer-id'),
             btnConnect: document.getElementById('btn-connect-peer'),
+            btnToggleSetup: document.getElementById('btn-toggle-peer-setup'),
+            iconToggleSetup: document.getElementById('icon-toggle-peer'),
+            setupContainer: document.getElementById('peer-setup-container'),
             
             nameInput: document.getElementById('my-peer-name'),
             avatarUpload: document.getElementById('my-avatar-upload'),
@@ -1722,6 +1732,26 @@
             chatForm: document.getElementById('peer-chat-form'),
             chatInput: document.getElementById('peer-chat-input')
         };
+
+        // Peer Setup Toggle Logic
+        let isPeerSetupOpen = true;
+        peerEls.btnToggleSetup.addEventListener('click', () => {
+            isPeerSetupOpen = !isPeerSetupOpen;
+            if (isPeerSetupOpen) {
+                peerEls.setupContainer.style.height = peerEls.setupContainer.scrollHeight + 'px';
+                peerEls.setupContainer.style.opacity = '1';
+                peerEls.iconToggleSetup.classList.remove('rotate-180');
+            } else {
+                peerEls.setupContainer.style.height = '0px';
+                peerEls.setupContainer.style.opacity = '0';
+                peerEls.iconToggleSetup.classList.add('rotate-180');
+            }
+        });
+        
+        // Auto-set height after a tiny delay to allow CSS transitions to work
+        setTimeout(() => {
+            peerEls.setupContainer.style.height = peerEls.setupContainer.scrollHeight + 'px';
+        }, 100);
 
         // Chat State
         let isChatOpen = false;
@@ -1827,33 +1857,46 @@
         if (savedPeerAvatar) {
             peerEls.myAvatarImg.src = savedPeerAvatar;
         }
+        const savedFriendId = safeGet('cf_friendId', '');
+        if (savedFriendId) {
+            peerEls.friendInput.value = savedFriendId;
+        }
 
         peerEls.nameInput.addEventListener('input', (e) => {
             safeSet('cf_peerName', e.target.value);
+            broadcastState();
         });
 
         peerEls.avatarUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_SIZE = 100;
-                    let w = img.width, h = img.height;
-                    if (w > h) { h *= MAX_SIZE / w; w = MAX_SIZE; } 
-                    else { w *= MAX_SIZE / h; h = MAX_SIZE; }
-                    canvas.width = w; canvas.height = h;
-                    const c = canvas.getContext('2d');
-                    c.drawImage(img, 0, 0, w, h);
-                    const base64 = canvas.toDataURL('image/jpeg', 0.8);
-                    peerEls.myAvatarImg.src = base64;
-                    safeSet('cf_peerAvatar', base64);
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    // Create an image to resize it (reduce WebRTC payload)
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_SIZE = 100;
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) {
+                            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                        } else {
+                            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                        }
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        
+                        peerEls.myAvatarImg.src = dataUrl;
+                        safeSet('cf_peerAvatar', dataUrl);
+                        broadcastState();
+                    };
+                    img.src = ev.target.result;
                 };
-                img.src = ev.target.result;
-            };
-            reader.readAsDataURL(file);
+                reader.readAsDataURL(file);
+            }
         });
 
         function generateShortId() {
@@ -2034,6 +2077,8 @@
         peerEls.btnConnect.addEventListener('click', () => {
             const friendId = peerEls.friendInput.value.trim();
             if (!friendId) return;
+            
+            safeSet('cf_friendId', friendId);
             
             updatePeerUI('connecting');
             const conn = peer.connect(friendId, { reliable: true });
