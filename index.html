@@ -273,6 +273,10 @@
                     </div>
                     <iframe id="youtube-iframe" class="hidden absolute inset-0 w-full h-full z-20" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
+                <div id="youtube-fallback-container" class="hidden mt-2 text-center">
+                    <p class="text-[10px] text-slate-400">¿Dice "Accede" o el video está bloqueado?</p>
+                    <a id="youtube-fallback-link" href="#" target="_blank" class="text-xs text-clinical-blue hover:underline"><i class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Ábrelo directamente en YouTube</a>
+                </div>
             </section>
 
             <!-- MODULE 3: ANALÍTICAS -->
@@ -604,16 +608,23 @@
         }
 
         function loadYouTubeVideo(id) {
+            const fallbackCont = document.getElementById('youtube-fallback-container');
+            const fallbackLink = document.getElementById('youtube-fallback-link');
             if (id) {
                 state.youtubeId = id;
                 safeSet('cf_youtubeId', id);
                 els.ytEmpty.classList.add('hidden');
                 els.ytIframe.classList.remove('hidden');
                 els.ytIframe.src = `https://www.youtube.com/embed/${id}?autoplay=0`;
+                if(fallbackCont && fallbackLink) {
+                    fallbackLink.href = `https://www.youtube.com/watch?v=${id}`;
+                    fallbackCont.classList.remove('hidden');
+                }
             } else {
                 els.ytEmpty.classList.remove('hidden');
                 els.ytIframe.classList.add('hidden');
                 els.ytIframe.src = "";
+                if(fallbackCont) fallbackCont.classList.add('hidden');
             }
         }
 
@@ -771,6 +782,7 @@
             });
 
             els.btnStart.innerHTML = '<i class="fa-solid fa-play"></i> Iniciar';
+            els.btnStart.classList.remove('hidden');
             els.btnPause.classList.add('hidden');
             
             updateTimerUI();
@@ -838,14 +850,19 @@
         els.btnStart.addEventListener('click', () => {
             if (!state.timer.isRunning) {
                 state.timer.isRunning = true;
+                els.btnStart.classList.add('hidden');
+                els.btnPause.classList.remove('hidden');
                 state.timer.interval = setInterval(timerTick, 1000);
-                if (audioCtx.state === 'suspended') audioCtx.resume();
+                if (typeof audioCtx !== 'undefined' && audioCtx.state === 'suspended') audioCtx.resume();
             }
         });
 
         els.btnPause.addEventListener('click', () => {
             clearInterval(state.timer.interval);
             state.timer.isRunning = false;
+            els.btnPause.classList.add('hidden');
+            els.btnStart.classList.remove('hidden');
+            els.btnStart.innerHTML = '<i class="fa-solid fa-play"></i> Reanudar';
         });
 
         els.btnSkip.addEventListener('click', () => {
