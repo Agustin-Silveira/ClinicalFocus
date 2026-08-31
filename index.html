@@ -318,34 +318,33 @@
                     </div>
                 </div>
 
-                <div id="peer-setup-container" class="transition-all duration-300 overflow-hidden origin-top">
-                    <!-- Setup / My Info -->
-                    <div class="mb-4 bg-slate-800/40 p-3 rounded border border-slate-700/50">
-                        
-                        <!-- Avatar & Name -->
-                        <div class="flex items-center gap-3 mb-3 pb-3 border-b border-slate-700/50">
-                            <div class="relative group cursor-pointer shrink-0" onclick="document.getElementById('my-avatar-upload').click()" title="Cambiar foto de perfil">
-                                <img id="my-avatar-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" class="w-10 h-10 rounded-full object-cover border border-slate-600 group-hover:border-clinical-blue transition-colors bg-slate-900">
-                                <div class="absolute inset-0 bg-black/50 rounded-full hidden group-hover:flex items-center justify-center">
-                                    <i class="fa-solid fa-camera text-[10px] text-white"></i>
-                                </div>
-                                <input type="file" id="my-avatar-upload" accept="image/*" class="hidden">
+                <!-- Setup / My Info -->
+                <div class="mb-4 bg-slate-800/40 p-3 rounded border border-slate-700/50">
+                    
+                    <!-- Avatar & Name -->
+                    <div class="flex items-center gap-3">
+                        <div class="relative group cursor-pointer shrink-0" onclick="document.getElementById('my-avatar-upload').click()" title="Cambiar foto de perfil">
+                            <img id="my-avatar-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" class="w-10 h-10 rounded-full object-cover border border-slate-600 group-hover:border-clinical-blue transition-colors bg-slate-900">
+                            <div class="absolute inset-0 bg-black/50 rounded-full hidden group-hover:flex items-center justify-center">
+                                <i class="fa-solid fa-camera text-[10px] text-white"></i>
                             </div>
-                            <div class="flex-1">
-                                <p class="text-[9px] text-slate-400 uppercase mb-0.5">Identificación Médica</p>
-                                <input type="text" id="my-peer-name" placeholder="Ej: Dra. Grey" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-clinical-blue" value="Médico de Guardia">
-                            </div>
+                            <input type="file" id="my-avatar-upload" accept="image/*" class="hidden">
                         </div>
-
-                        <p class="text-[10px] text-slate-400 uppercase mb-1">Tu Código de Colega:</p>
-                        <div class="flex gap-2">
-                            <input type="text" id="my-peer-id" readonly class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-xs font-mono text-clinical-blue text-center cursor-copy select-all" value="Generando...">
-                            <button id="btn-copy-peer" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded transition" title="Copiar"><i class="fa-regular fa-copy"></i></button>
+                        <div class="flex-1">
+                            <p class="text-[9px] text-slate-400 uppercase mb-0.5">Identificación Médica</p>
+                            <input type="text" id="my-peer-name" placeholder="Ej: Dra. Grey" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-clinical-blue" value="Médico de Guardia">
                         </div>
                     </div>
 
-                    <!-- Connect to friend -->
-                    <div class="mb-2">
+                    <!-- Codes Container (Minimizable) -->
+                    <div id="peer-setup-container" class="transition-all duration-300 overflow-hidden origin-top mt-3 pt-3 border-t border-slate-700/50">
+                        <p class="text-[10px] text-slate-400 uppercase mb-1">Tu Código de Colega:</p>
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" id="my-peer-id" readonly class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-xs font-mono text-clinical-blue text-center cursor-copy select-all" value="Generando...">
+                            <button id="btn-copy-peer" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded transition" title="Copiar"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+
+                        <!-- Connect to friend -->
                         <p class="text-[10px] text-slate-400 uppercase mb-1">Conectar con Colega:</p>
                         <div class="flex gap-2">
                             <input type="text" id="friend-peer-id" placeholder="Pegar código..." class="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-clinical-blue">
@@ -1740,10 +1739,16 @@
             if (isPeerSetupOpen) {
                 peerEls.setupContainer.style.height = peerEls.setupContainer.scrollHeight + 'px';
                 peerEls.setupContainer.style.opacity = '1';
+                peerEls.setupContainer.style.marginTop = '0.75rem';
+                peerEls.setupContainer.style.paddingTop = '0.75rem';
+                peerEls.setupContainer.style.borderTopWidth = '1px';
                 peerEls.iconToggleSetup.classList.remove('rotate-180');
             } else {
                 peerEls.setupContainer.style.height = '0px';
                 peerEls.setupContainer.style.opacity = '0';
+                peerEls.setupContainer.style.marginTop = '0px';
+                peerEls.setupContainer.style.paddingTop = '0px';
+                peerEls.setupContainer.style.borderTopWidth = '0px';
                 peerEls.iconToggleSetup.classList.add('rotate-180');
             }
         });
