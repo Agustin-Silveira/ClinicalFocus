@@ -50,14 +50,23 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
-        
+
+        :root {
+            --glass-panel-bg: rgba(15, 23, 42, 0.6);
+            --clinical-accent: #0ea5e9;
+        }
+
         .glass-panel {
-            background: rgba(15, 23, 42, 0.6);
+            background: var(--glass-panel-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 1rem;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .text-clinical-blue {
+            color: var(--clinical-accent, #0ea5e9);
         }
 
         .modal-glass {
@@ -69,7 +78,7 @@
         }
 
         /* SVG Circular Timer */
-        .timer-ring { transition: stroke-dashoffset 1s linear; }
+        .timer-ring { transition: stroke-dashoffset 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
         /* Patient EKG Animations */
         @keyframes ekg-critical {
@@ -230,7 +239,7 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-3 mb-6">
+                    <div class="flex gap-3 mb-4">
                         <button id="btn-start" class="w-12 h-12 rounded-full bg-clinical-blue text-white flex items-center justify-center hover:bg-blue-500 hover:scale-105 active:scale-95 transition-transform duration-200 shadow-lg focus:outline-none">
                             <i class="fa-solid fa-play"></i>
                         </button>
@@ -240,6 +249,28 @@
                         <button id="btn-skip" class="w-10 h-10 rounded-full bg-slate-700 text-white flex items-center justify-center hover:bg-slate-600 hover:scale-105 active:scale-95 transition-transform duration-200 shadow-lg focus:outline-none self-center">
                             <i class="fa-solid fa-forward-step"></i>
                         </button>
+                    </div>
+
+                    <!-- Live Time Extension Controls (Aesthetic Redesign) -->
+                    <div class="w-full mb-5 p-2 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-800/80 shadow-[0_4px_20px_rgba(0,0,0,0.3)] flex flex-col gap-2 transition-all">
+                        <div class="flex items-center justify-between px-1">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
+                                <i class="fa-solid fa-clock-rotate-left text-clinical-blue animate-pulse"></i> Extender Guardia
+                            </span>
+                            <span class="text-[9px] font-mono text-slate-500 uppercase">+Minutos al vuelo</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" class="btn-add-time flex-1 py-1.5 rounded-xl bg-slate-800/90 hover:bg-clinical-blue/20 text-slate-200 hover:text-white border border-slate-700/80 hover:border-clinical-blue/50 text-xs font-mono font-bold transition-all hover:scale-105 active:scale-95 shadow-sm text-center" data-mins="5">+5 min</button>
+                            <button type="button" class="btn-add-time flex-1 py-1.5 rounded-xl bg-slate-800/90 hover:bg-clinical-blue/20 text-slate-200 hover:text-white border border-slate-700/80 hover:border-clinical-blue/50 text-xs font-mono font-bold transition-all hover:scale-105 active:scale-95 shadow-sm text-center" data-mins="10">+10 min</button>
+                            
+                            <!-- Sleek Custom Min Pill Input -->
+                            <form id="form-custom-add-time" class="flex-1 flex items-center bg-slate-950/90 border border-slate-700/80 focus-within:border-clinical-blue rounded-xl p-0.5 transition-all shadow-inner relative group">
+                                <input type="number" id="custom-add-mins" placeholder="min..." min="1" max="180" class="w-full bg-transparent text-center text-xs text-white placeholder-slate-500 font-mono focus:outline-none px-1.5 py-1 min-w-0">
+                                <button type="submit" class="w-6 h-6 rounded-lg bg-clinical-blue text-white hover:bg-blue-500 flex items-center justify-center text-xs font-bold transition-transform hover:scale-105 active:scale-95 shadow-md shrink-0" title="Sumar minutos personalizados">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 w-full mb-6">
@@ -262,13 +293,13 @@
             </div>
 
             <!-- MODULE: SPOTIFY AUDIO TERAPIA (OAUTH IMPLICIT FLOW) -->
-            <div class="glass-panel p-6 flex flex-col flex-grow" id="spotify-module">
+            <div class="glass-panel p-6 flex flex-col" id="spotify-module">
                 <h2 class="text-sm font-medium text-slate-300 mb-4 uppercase tracking-wide border-b border-slate-700 pb-2 flex justify-between items-center">
                     <span><i class="fa-brands fa-spotify mr-2 text-[#1DB954]"></i>Audio Terapia (Spotify)</span>
                 </h2>
                 
                 <!-- Unauthenticated State -->
-                <div id="spotify-unauth" class="flex flex-col items-center justify-center p-4 text-center gap-3 flex-grow">
+                <div id="spotify-unauth" class="flex flex-col items-center justify-center p-4 text-center gap-3">
                     <p class="text-xs text-slate-400">Conecta tu cuenta para sincronizar tus Playlists de concentración.</p>
                     <button id="btn-spotify-connect" class="bg-[#1DB954] hover:bg-[#1ed760] text-slate-950 font-bold px-4 py-2.5 rounded-full text-xs transition shadow-[0_0_15px_rgba(29,185,84,0.4)] flex items-center gap-2">
                         <i class="fa-brands fa-spotify text-base"></i> Conectar mi Spotify
@@ -276,7 +307,7 @@
                 </div>
 
                 <!-- Authenticated State -->
-                <div id="spotify-auth" class="hidden flex-col gap-3 flex-grow">
+                <div id="spotify-auth" class="hidden flex-col gap-3">
                     <div class="flex justify-between items-center text-xs text-slate-400">
                         <span class="font-medium text-slate-300">Tus Playlists:</span>
                         <button id="btn-spotify-logout" class="text-[10px] text-slate-500 hover:text-clinical-red transition">Desconectar</button>
@@ -288,8 +319,8 @@
                     </div>
 
                     <!-- Embed Iframe -->
-                    <div class="relative w-full h-[350px] flex-grow rounded-xl overflow-hidden mt-1 border border-slate-700 bg-slate-950">
-                        <iframe id="spotify-player-iframe" src="about:blank" width="100%" height="350" class="w-full h-full" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                    <div class="relative w-full h-[152px] rounded-xl overflow-hidden mt-1 border border-slate-700 bg-slate-950">
+                        <iframe id="spotify-player-iframe" src="about:blank" width="100%" height="152" class="w-full h-full" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
                     </div>
                 </div>
             </div>
@@ -315,18 +346,38 @@
                     </div>
                 </div>
             </section>
+
+            <!-- MODULE 7: GOOGLE MEET DE GUARDIAS -->
+            <section class="glass-panel p-4 flex items-center justify-between gap-3 shrink-0 relative overflow-hidden border-clinical-yellow/20" style="border-color: rgba(234, 179, 8, 0.2);">
+                <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-yellow-500/5 pointer-events-none"></div>
+                
+                <div class="flex items-center gap-3 min-w-0 relative z-10">
+                    <div class="w-9 h-9 rounded-full bg-slate-900 border border-slate-700 flex shrink-0 items-center justify-center text-clinical-yellow shadow-[0_0_10px_rgba(234,179,8,0.2)] text-sm">
+                        <i class="fa-solid fa-video"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[9px] uppercase tracking-widest text-clinical-yellow font-bold mb-0.5">Guardia en Vivo</p>
+                        <p class="text-xs font-semibold text-slate-200 truncate">Meet de Estudio</p>
+                    </div>
+                </div>
+
+                <a href="https://meet.google.com/bcm-qvqc-rvm" target="_blank" 
+                   class="bg-clinical-yellow/20 text-clinical-yellow border border-clinical-yellow/50 hover:bg-clinical-yellow hover:text-slate-900 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 active:scale-95 duration-200 shadow-[0_0_10px_rgba(234,179,8,0.2)] flex items-center gap-1.5 shrink-0 relative z-10">
+                    <i class="fa-solid fa-up-right-from-square text-[10px]"></i> Unirse al Meet
+                </a>
+            </section>
         </section>
 
         <!-- COLUMN 2: EVOLUCIONES & AGENDA -->
         <div class="lg:col-span-4 flex flex-col gap-6 h-full">
-            <!-- MODULE 2: EVOLUCIONES (TO-DO) -->
-            <section class="glass-panel p-6 flex flex-col flex-1 min-h-[360px]">
+            <!-- MODULE 2: EVOLUCIONES (TO-DO) (55% ALTURA) -->
+            <section class="glass-panel p-6 flex flex-col min-h-0" style="flex: 55 55 0%;">
                 <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
                     <h2 class="text-sm font-medium text-slate-300 uppercase tracking-wide"><i class="fa-solid fa-clipboard-user mr-2 text-clinical-blue"></i>Evoluciones (To-Do)</h2>
                     <button id="btn-clear-tasks" class="text-xs text-clinical-red hover:text-red-400 transition" title="Eliminar todas las tareas"><i class="fa-solid fa-trash-can"></i> Limpiar</button>
                 </div>
                 
-                <div class="flex-grow overflow-y-auto mb-4 pr-2 min-h-[160px] max-h-[260px]" id="task-list">
+                <div class="flex-grow overflow-y-auto mb-4 pr-2 min-h-0" id="task-list">
                     <!-- Tasks injected here -->
                 </div>
 
@@ -349,8 +400,8 @@
                 </form>
             </section>
 
-            <!-- MODULE: AGENDA DE GUARDIAS -->
-            <section class="glass-panel p-6 flex flex-col flex-1 min-h-[360px]">
+            <!-- MODULE: AGENDA DE GUARDIAS (45% ALTURA) -->
+            <section class="glass-panel p-6 flex flex-col min-h-0" style="flex: 45 45 0%;">
                 <h2 class="text-sm font-medium text-slate-300 uppercase tracking-wide mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-calendar-days mr-2 text-clinical-blue"></i>Agenda de Guardias y Turnos</h2>
                 
                 <div id="calendar-setup" class="flex flex-col gap-2 mb-2">
@@ -363,7 +414,7 @@
                     </div>
                 </div>
 
-                <div id="calendar-view" class="hidden relative w-full flex-grow rounded overflow-hidden border border-slate-700 bg-slate-900/80 min-h-[220px]">
+                <div id="calendar-view" class="hidden relative w-full flex-grow min-h-[160px] rounded overflow-hidden border border-slate-700 bg-slate-900/80">
                     <iframe id="calendar-iframe" class="absolute inset-0 w-full h-full dark-calendar-filter" src="about:blank" frameborder="0" scrolling="no"></iframe>
                     <button id="btn-edit-calendar" class="absolute top-2 right-2 bg-slate-800/80 hover:bg-slate-700 text-white w-6 h-6 rounded flex items-center justify-center transition border border-slate-600 shadow-md" title="Editar Calendario"><i class="fa-solid fa-pen text-[10px]"></i></button>
                 </div>
@@ -579,8 +630,8 @@
             <!-- FAB Button -->
             <button id="chat-fab" class="w-14 h-14 bg-clinical-blue text-white rounded-full shadow-[0_0_15px_rgba(14,165,233,0.6)] flex items-center justify-center hover:scale-110 transition-transform relative z-50">
                 <i class="fa-solid fa-pager text-xl"></i>
-                <!-- Unread Badge -->
-                <span id="chat-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-clinical-red text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-slate-900 hidden transition-transform scale-0">0</span>
+                <!-- Unread Red Dot Badge -->
+                <span id="chat-badge" class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-clinical-red rounded-full border-2 border-slate-900 shadow-[0_0_10px_rgba(239,68,68,0.9)] hidden transition-all duration-300 scale-0"></span>
             </button>
         </div>
 
@@ -609,6 +660,33 @@
                             <label class="text-sm text-slate-300">Pausa Larga</label>
                             <input type="number" id="cfg-time-long" class="w-20 bg-slate-800 border border-slate-600 rounded p-1 text-center text-white" min="1" max="60">
                         </div>
+
+                        <!-- Pomofocus Automation Settings -->
+                        <div class="pt-3 border-t border-slate-700/60 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-slate-300 font-medium">Auto Start Breaks</span>
+                                <label class="relative inline-flex items-center cursor-pointer select-none">
+                                    <input type="checkbox" id="cfg-auto-start-breaks" class="sr-only peer">
+                                    <div class="w-8 h-4 bg-slate-800 border border-slate-700 rounded-full peer peer-checked:bg-clinical-blue/40 peer-checked:border-clinical-blue/60 transition-all"></div>
+                                    <div class="absolute left-0.5 top-0.5 w-3 h-3 bg-slate-400 rounded-full transition-transform peer-checked:translate-x-4 peer-checked:bg-clinical-blue shadow-sm"></div>
+                                </label>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-slate-300 font-medium">Auto Start Pomodoros</span>
+                                <label class="relative inline-flex items-center cursor-pointer select-none">
+                                    <input type="checkbox" id="cfg-auto-start-pomodoros" class="sr-only peer">
+                                    <div class="w-8 h-4 bg-slate-800 border border-slate-700 rounded-full peer peer-checked:bg-clinical-blue/40 peer-checked:border-clinical-blue/60 transition-all"></div>
+                                    <div class="absolute left-0.5 top-0.5 w-3 h-3 bg-slate-400 rounded-full transition-transform peer-checked:translate-x-4 peer-checked:bg-clinical-blue shadow-sm"></div>
+                                </label>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs text-slate-300 font-medium">Long Break Interval</label>
+                                <div class="flex items-center gap-1.5">
+                                    <input type="number" id="cfg-long-break-interval" class="w-16 bg-slate-800 border border-slate-600 rounded p-1 text-center text-white text-xs" min="1" max="12" value="4">
+                                    <span class="text-[10px] text-slate-400">ciclos</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -633,6 +711,116 @@
                     </div>
                 </div>
             </div>
+
+            <!-- SECTION 3: PERSONALIZACIÓN VISUAL (ESTÉTICA Y APARIENCIA) -->
+            <div class="mt-8 pt-6 border-t border-slate-700">
+                <h3 class="text-sm font-medium text-slate-300 uppercase tracking-wide mb-4 text-clinical-blue flex items-center justify-between">
+                    <span><i class="fa-solid fa-palette mr-2"></i>Estética y Apariencia (Personalización Total)</span>
+                    <button type="button" id="btn-reset-appearance" class="text-[10px] text-slate-400 hover:text-white transition bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded border border-slate-700">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Restablecer Tema
+                    </button>
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Color de Fondo General -->
+                    <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-semibold text-white">Fondo General (Body)</p>
+                            <p class="text-[10px] text-slate-400">Color principal del entorno</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="cfg-bg-color-val" class="text-[10px] font-mono text-slate-300 uppercase">#0f172a</span>
+                            <input type="color" id="cfg-bg-color" value="#0f172a" class="w-8 h-8 rounded-full border-2 border-slate-600 cursor-pointer bg-transparent p-0 overflow-hidden shadow-md transition-transform hover:scale-110">
+                        </div>
+                    </div>
+
+                    <!-- Color de Tarjetas (Glass Panels) -->
+                    <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-semibold text-white">Tono de Módulos (Glass)</p>
+                            <p class="text-[10px] text-slate-400">Color translúcido de tarjetas</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="cfg-panel-color-val" class="text-[10px] font-mono text-slate-300 uppercase">#0f172a</span>
+                            <input type="color" id="cfg-panel-color" value="#0f172a" class="w-8 h-8 rounded-full border-2 border-slate-600 cursor-pointer bg-transparent p-0 overflow-hidden shadow-md transition-transform hover:scale-110">
+                        </div>
+                    </div>
+
+                    <!-- Color de Acentos y Encabezados -->
+                    <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between gap-3 md:col-span-2">
+                        <div>
+                            <p class="text-xs font-semibold text-white">Color de Títulos y Acentos</p>
+                            <p class="text-[10px] text-slate-400">Acento de iconos y textos destacados</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="cfg-accent-color-val" class="text-[10px] font-mono text-slate-300 uppercase">#0ea5e9</span>
+                            <input type="color" id="cfg-accent-color" value="#0ea5e9" class="w-8 h-8 rounded-full border-2 border-slate-600 cursor-pointer bg-transparent p-0 overflow-hidden shadow-md transition-transform hover:scale-110">
+                        </div>
+                    </div>
+
+                    <!-- Imagen de Fondo (Subir o URL) -->
+                    <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 flex flex-col gap-3 md:col-span-2">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-xs font-semibold text-white">Imagen de Fondo Personalizada</p>
+                                <p class="text-[10px] text-slate-400">Sube una foto de tu PC o pega un enlace URL</p>
+                            </div>
+                            <button type="button" id="btn-remove-bg-image" class="text-[10px] text-clinical-red hover:text-red-400 transition hidden">
+                                <i class="fa-solid fa-trash mr-1"></i> Quitar Fondo
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="file" id="cfg-bg-file" accept="image/*" class="hidden">
+                            <button type="button" id="btn-trigger-bg-file" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-medium border border-slate-700 transition flex items-center justify-center gap-1.5 shrink-0">
+                                <i class="fa-solid fa-upload text-clinical-blue"></i> Subir de mi PC
+                            </button>
+                            <input type="text" id="cfg-bg-url" placeholder="O pega el enlace URL (https://...)" class="w-full bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-clinical-blue">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: EFECTOS Y ALERTAS SONORAS -->
+            <div class="mt-8 pt-6 border-t border-slate-700">
+                <h3 class="text-sm font-medium text-slate-300 uppercase tracking-wide mb-4 text-clinical-blue flex items-center gap-2">
+                    <i class="fa-solid fa-volume-high"></i>Efectos y Alertas Sonoras
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Tono Alarma Pomodoro -->
+                    <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-semibold text-white">Alarma Pomodoro / Fin de Guardia</label>
+                            <button type="button" id="btn-test-alarm" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-clinical-blue border border-slate-700 px-2 py-0.5 rounded transition flex items-center gap-1 hover:scale-105 active:scale-95">
+                                <i class="fa-solid fa-play text-[9px]"></i> Probar
+                            </button>
+                        </div>
+                        <select id="cfg-sound-alarm" class="bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-clinical-blue">
+                            <option value="claro">🔔 Campanilla Clara (Suave)</option>
+                            <option value="hospital">🏥 Monitor Vital (Clínico EKG)</option>
+                            <option value="digital">👾 Alarma Digital (Retro 8-bit)</option>
+                            <option value="zen">🧘 Cuenco Armónico (Zen 432Hz)</option>
+                        </select>
+                    </div>
+
+                    <!-- Tono Notificación Mensajes -->
+                    <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-semibold text-white">Notificación de Mensajes / Chat</label>
+                            <button type="button" id="btn-test-msg" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-clinical-blue border border-slate-700 px-2 py-0.5 rounded transition flex items-center gap-1 hover:scale-105 active:scale-95">
+                                <i class="fa-solid fa-play text-[9px]"></i> Probar
+                            </button>
+                        </div>
+                        <select id="cfg-sound-msg" class="bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-clinical-blue">
+                            <option value="pager">📟 Pager Clásico (2-Tonos)</option>
+                            <option value="bubble">🫧 Burbuja Soft (Pop)</option>
+                            <option value="ding">🛎️ Campanita Cristal</option>
+                            <option value="pulse">⚡ Pulso Cibernético</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             
             <div class="mt-8 pt-4 border-t border-slate-700 flex justify-between items-center">
                 <button id="btn-reset-stats" class="text-xs text-clinical-red hover:text-red-400 border border-clinical-red/30 hover:bg-clinical-red/10 px-3 py-2 rounded transition"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Reiniciar Estadísticas</button>
@@ -651,12 +839,12 @@
     <script>
         // --- SPOTIFY OAUTH CONFIGURATION ---
         const SPOTIFY_CLIENT_ID = 'ad497e3e619f40189c3f77b4c189c3c7';
-        const SPOTIFY_REDIRECT_URI = window.location.href.split('#')[0];
+        const SPOTIFY_REDIRECT_URI = 'https://agustin-silveira.github.io/clinical-focusV2/';
 
         // --- INITIAL STATE & DEFAULT DATA ---
         const defaultSubjects = [
             { id: 'sub_1', name: 'Farmacología', color: '#0ea5e9', minutes: 0 },
-            { id: 'sub_2', name: 'Fisiopatología', color: '#ef4444', minutes: 0 },
+            { id: 'sub_2', name: 'Patología', color: '#ef4444', minutes: 0 },
             { id: 'sub_3', name: 'Semiología', color: '#10b981', minutes: 0 }
         ];
 
@@ -672,11 +860,18 @@
         }
 
         let state = {
-            config: safeParse('cf_config', { times: { study: 50, shortBreak: 5, longBreak: 15 } }),
+            config: Object.assign({
+                times: { study: 50, shortBreak: 5, longBreak: 15 },
+                autoStartBreaks: false,
+                autoStartPomodoros: false,
+                longBreakInterval: 4,
+                soundAlarm: 'claro',
+                soundMsg: 'pager'
+            }, safeParse('cf_config', {})),
             subjects: safeParse('cf_subjects', defaultSubjects),
             tasks: safeParse('cf_tasks', []),
             stats: safeParse('cf_stats', { pomodorosToday: 0, hoursToday: 0, weeklyMinutes: [0, 0, 0, 0, 0, 0, 0], lastDate: new Date().toDateString() }),
-            timer: { mode: 'study', timeLeft: 0, isRunning: false, interval: null, activeSubjectId: null },
+            timer: { mode: 'study', timeLeft: 0, totalTime: 0, isRunning: false, interval: null, activeSubjectId: null },
             game: safeParse('cf_game', { active: false, targetPomos: 4, currentPomos: 0, patientId: null }),
             audio: { unlocked: false },
             youtubeId: safeGet('cf_youtubeId', null)
@@ -696,7 +891,7 @@
             state.timer.activeSubjectId = state.subjects[0].id;
         }
 
-        // --- WEB AUDIO API FOR RELIABLE BEEPS ---
+        // --- WEB AUDIO API FOR RELIABLE BEEPS & CUSTOM SOUND PRESETS ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
         function playVitalBeep() {
@@ -717,32 +912,132 @@
             osc.stop(audioCtx.currentTime + 0.3);
         }
 
-        function playSoftChime() {
-            if (!state.audio.unlocked || audioCtx.state === 'suspended') return;
+        function playPomodoroAlarm(presetKey) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            state.audio.unlocked = true;
             const t = audioCtx.currentTime;
-            const vol = 0.5;
-            
-            function createBell(freq, startTime) {
+            const sound = presetKey || (state.config && state.config.soundAlarm) || 'claro';
+
+            if (sound === 'hospital') {
+                // Vital EKG Monitor Beep (Medical)
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                
-                osc.type = 'sine'; 
-                osc.frequency.setValueAtTime(freq, startTime);
-                
-                gain.gain.setValueAtTime(0, startTime);
-                gain.gain.linearRampToValueAtTime(vol * 0.7, startTime + 0.05);
-                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 2.5);
-                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, t);
+                osc.frequency.setValueAtTime(1200, t + 0.15);
+                gain.gain.setValueAtTime(0.4, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
-                
-                osc.start(startTime);
-                osc.stop(startTime + 3.0);
+                osc.start(t);
+                osc.stop(t + 0.5);
+            } else if (sound === 'digital') {
+                // 8-bit Retro Alarm
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(freq, t + (idx * 0.08));
+                    gain.gain.setValueAtTime(0.12, t + (idx * 0.08));
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + (idx * 0.08) + 0.1);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(t + (idx * 0.08));
+                    osc.stop(t + (idx * 0.08) + 0.1);
+                });
+            } else if (sound === 'zen') {
+                // Tibetan Singing Bowl (Zen 432Hz)
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(432, t);
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.5, t + 0.08);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 2.8);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(t);
+                osc.stop(t + 3.0);
+            } else {
+                // 'claro' - Soft Melodic Chime (C5 -> E5 -> G5)
+                const playBell = (freq, startTime) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, startTime);
+                    gain.gain.setValueAtTime(0, startTime);
+                    gain.gain.linearRampToValueAtTime(0.35, startTime + 0.04);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 1.8);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(startTime);
+                    osc.stop(startTime + 2.0);
+                };
+                playBell(523.25, t);
+                playBell(659.25, t + 0.3);
+                playBell(783.99, t + 0.6);
             }
+        }
 
-            createBell(523.25, t);         // C5
-            createBell(659.25, t + 0.4);   // E5
-            createBell(783.99, t + 0.8);   // G5
+        function playMessageSound(presetKey) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            state.audio.unlocked = true;
+            const t = audioCtx.currentTime;
+            const sound = presetKey || (state.config && state.config.soundMsg) || 'pager';
+
+            if (sound === 'bubble') {
+                // Soft Bubble Pop
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, t);
+                osc.frequency.exponentialRampToValueAtTime(750, t + 0.08);
+                gain.gain.setValueAtTime(0.3, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(t);
+                osc.stop(t + 0.12);
+            } else if (sound === 'ding') {
+                // Crystal Bell Ding
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1400, t);
+                gain.gain.setValueAtTime(0.35, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(t);
+                osc.stop(t + 0.4);
+            } else if (sound === 'pulse') {
+                // Cyber Pulse Double Click
+                [900, 1400].forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, t + (idx * 0.05));
+                    gain.gain.setValueAtTime(0.3, t + (idx * 0.05));
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + (idx * 0.05) + 0.06);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(t + (idx * 0.05));
+                    osc.stop(t + (idx * 0.05) + 0.06);
+                });
+            } else {
+                // 'pager' - Classic Dual Pager Beep
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(900, t);
+                osc.frequency.setValueAtTime(1300, t + 0.1);
+                gain.gain.setValueAtTime(0.08, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(t);
+                osc.stop(t + 0.2);
+            }
         }
 
         // Unlock audio context on first user interaction
@@ -1023,14 +1318,14 @@
             pipCtx.stroke();
 
             // Progress Ring
-            const mins = state.config.times[state.timer.mode === 'short-break' ? 'shortBreak' : (state.timer.mode === 'long-break' ? 'longBreak' : 'study')];
-            const total = mins * 60;
-            const prog = ((total - state.timer.timeLeft) / total);
+            const defaultMins = state.config.times[state.timer.mode === 'short-break' ? 'shortBreak' : (state.timer.mode === 'long-break' ? 'longBreak' : 'study')];
+            const total = state.timer.totalTime || (defaultMins * 60);
+            const fractionLeft = Math.max(0, Math.min(1, state.timer.timeLeft / total));
             
             pipCtx.strokeStyle = state.timer.mode === 'study' ? '#0ea5e9' : (state.timer.mode === 'short-break' ? '#10b981' : '#8b5cf6');
             pipCtx.lineCap = 'round';
             pipCtx.beginPath();
-            pipCtx.arc(200, 200, 160, -Math.PI/2, (-Math.PI/2) + (Math.PI * 2 * (1 - prog)), false);
+            pipCtx.arc(200, 200, 160, -Math.PI/2, (-Math.PI/2) + (Math.PI * 2 * fractionLeft), false);
             pipCtx.stroke();
 
             // Text
@@ -1057,6 +1352,7 @@
             
             const mins = state.config.times[mode === 'short-break' ? 'shortBreak' : (mode === 'long-break' ? 'longBreak' : 'study')];
             state.timer.timeLeft = mins * 60;
+            state.timer.totalTime = mins * 60;
             
             els.modeBtns.forEach(btn => {
                 if(btn.dataset.mode === mode) {
@@ -1080,11 +1376,12 @@
         function updateTimerUI() {
             els.timerDisplay.textContent = formatTime(state.timer.timeLeft);
             
-            const mins = state.config.times[state.timer.mode === 'short-break' ? 'shortBreak' : (state.timer.mode === 'long-break' ? 'longBreak' : 'study')];
-            const total = mins * 60;
-            const prog = ((total - state.timer.timeLeft) / total) * 283;
-            els.timerProgress.style.strokeDashoffset = prog;
+            const defaultMins = state.config.times[state.timer.mode === 'short-break' ? 'shortBreak' : (state.timer.mode === 'long-break' ? 'longBreak' : 'study')];
+            const total = state.timer.totalTime || (defaultMins * 60);
+            const fractionLeft = Math.max(0, Math.min(1, state.timer.timeLeft / total));
+            const strokeOffset = (1 - fractionLeft) * 283;
             
+            els.timerProgress.style.strokeDashoffset = strokeOffset;
             els.timerProgress.style.stroke = state.timer.mode === 'study' ? '#0ea5e9' : (state.timer.mode === 'short-break' ? '#10b981' : '#8b5cf6');
 
             if (state.timer.isRunning) {
@@ -1121,20 +1418,44 @@
             }
         }
 
+        function startTimer() {
+            if (!state.timer.isRunning) {
+                state.timer.isRunning = true;
+                els.btnStart.classList.add('hidden');
+                els.btnPause.classList.remove('hidden');
+                state.timer.interval = setInterval(timerTick, 1000);
+                if (typeof audioCtx !== 'undefined' && audioCtx.state === 'suspended') audioCtx.resume();
+                syncPopup();
+            }
+        }
+
         function completePhase() {
             clearInterval(state.timer.interval);
             state.timer.isRunning = false;
             
-            playSoftChime();
+            playPomodoroAlarm();
             
-            if (state.timer.mode === 'study') {
+            const prevMode = state.timer.mode;
+
+            if (prevMode === 'study') {
                 state.stats.pomodorosToday++;
                 handleGameProgress();
                 saveState();
                 updateStatsUI();
-                setTimerMode(state.stats.pomodorosToday % 4 === 0 ? 'long-break' : 'short-break');
+                
+                const interval = state.config.longBreakInterval || 4;
+                const isLongBreak = (state.stats.pomodorosToday % interval === 0);
+                setTimerMode(isLongBreak ? 'long-break' : 'short-break');
+
+                if (state.config.autoStartBreaks) {
+                    startTimer();
+                }
             } else {
                 setTimerMode('study');
+
+                if (state.config.autoStartPomodoros) {
+                    startTimer();
+                }
             }
         }
 
@@ -1157,16 +1478,7 @@
             }
         }
 
-        els.btnStart.addEventListener('click', () => {
-            if (!state.timer.isRunning) {
-                state.timer.isRunning = true;
-                els.btnStart.classList.add('hidden');
-                els.btnPause.classList.remove('hidden');
-                state.timer.interval = setInterval(timerTick, 1000);
-                if (typeof audioCtx !== 'undefined' && audioCtx.state === 'suspended') audioCtx.resume();
-                syncPopup();
-            }
-        });
+        els.btnStart.addEventListener('click', startTimer);
 
         els.btnPause.addEventListener('click', () => {
             clearInterval(state.timer.interval);
@@ -1183,6 +1495,35 @@
             completePhase();
             syncPopup();
         });
+
+        // --- LIVE TIME EXTENSION LOGIC ---
+        function addExtraTime(minutes) {
+            const mins = parseInt(minutes);
+            if (isNaN(mins) || mins <= 0) return;
+            const addedSecs = mins * 60;
+            state.timer.timeLeft += addedSecs;
+            state.timer.totalTime = (state.timer.totalTime || state.timer.timeLeft) + addedSecs;
+            updateTimerUI();
+        }
+
+        document.querySelectorAll('.btn-add-time').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mins = parseInt(btn.dataset.mins);
+                addExtraTime(mins);
+            });
+        });
+
+        const customTimeForm = document.getElementById('form-custom-add-time');
+        if (customTimeForm) {
+            customTimeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = document.getElementById('custom-add-mins');
+                if (input && input.value) {
+                    addExtraTime(input.value);
+                    input.value = '';
+                }
+            });
+        }
 
         const btnPip = document.getElementById('btn-pip');
         const iconPip = document.getElementById('icon-pip');
@@ -1868,8 +2209,32 @@
             els.cfgTimes.study.value = state.config.times.study;
             els.cfgTimes.short.value = state.config.times.shortBreak;
             els.cfgTimes.long.value = state.config.times.longBreak;
+
+            const autoBreaksCheck = document.getElementById('cfg-auto-start-breaks');
+            const autoPomosCheck = document.getElementById('cfg-auto-start-pomodoros');
+            const longIntervalInput = document.getElementById('cfg-long-break-interval');
+            const soundAlarmSelect = document.getElementById('cfg-sound-alarm');
+            const soundMsgSelect = document.getElementById('cfg-sound-msg');
+            
+            if (autoBreaksCheck) autoBreaksCheck.checked = !!state.config.autoStartBreaks;
+            if (autoPomosCheck) autoPomosCheck.checked = !!state.config.autoStartPomodoros;
+            if (longIntervalInput) longIntervalInput.value = state.config.longBreakInterval || 4;
+            if (soundAlarmSelect) soundAlarmSelect.value = state.config.soundAlarm || 'claro';
+            if (soundMsgSelect) soundMsgSelect.value = state.config.soundMsg || 'pager';
+
             renderConfigSubjects();
             els.configModal.classList.remove('hidden');
+        });
+
+        // Test buttons for sound presets
+        document.getElementById('btn-test-alarm')?.addEventListener('click', () => {
+            const val = document.getElementById('cfg-sound-alarm')?.value || 'claro';
+            playPomodoroAlarm(val);
+        });
+
+        document.getElementById('btn-test-msg')?.addEventListener('click', () => {
+            const val = document.getElementById('cfg-sound-msg')?.value || 'pager';
+            playMessageSound(val);
         });
 
         els.btnCloseConfig.addEventListener('click', () => els.configModal.classList.add('hidden'));
@@ -1916,6 +2281,18 @@
             state.config.times.shortBreak = parseInt(els.cfgTimes.short.value) || 5;
             state.config.times.longBreak = parseInt(els.cfgTimes.long.value) || 15;
             
+            const autoBreaksCheck = document.getElementById('cfg-auto-start-breaks');
+            const autoPomosCheck = document.getElementById('cfg-auto-start-pomodoros');
+            const longIntervalInput = document.getElementById('cfg-long-break-interval');
+            const soundAlarmSelect = document.getElementById('cfg-sound-alarm');
+            const soundMsgSelect = document.getElementById('cfg-sound-msg');
+            
+            if (autoBreaksCheck) state.config.autoStartBreaks = autoBreaksCheck.checked;
+            if (autoPomosCheck) state.config.autoStartPomodoros = autoPomosCheck.checked;
+            if (longIntervalInput) state.config.longBreakInterval = Math.max(1, parseInt(longIntervalInput.value) || 4);
+            if (soundAlarmSelect) state.config.soundAlarm = soundAlarmSelect.value;
+            if (soundMsgSelect) state.config.soundMsg = soundMsgSelect.value;
+
             saveState();
             
             if(!state.timer.isRunning) setTimerMode(state.timer.mode);
@@ -1923,6 +2300,163 @@
             renderSubjectsUI();
             els.configModal.classList.add('hidden');
         });
+
+        // --- SYSTEM PERSONALIZATION & CUSTOM AESTHETICS ---
+        function applyCustomAppearance() {
+            const customBgColor = safeGet('cf_customBgColor', '');
+            const customBgImage = safeGet('cf_customBgImage', '');
+            const customPanelColor = safeGet('cf_customPanelColor', '');
+            const customAccentColor = safeGet('cf_customAccentColor', '');
+
+            // 1. Background Color
+            if (customBgColor) {
+                document.body.style.backgroundColor = customBgColor;
+                const elBgVal = document.getElementById('cfg-bg-color-val');
+                const elBgPicker = document.getElementById('cfg-bg-color');
+                if (elBgVal) elBgVal.textContent = customBgColor;
+                if (elBgPicker) elBgPicker.value = customBgColor;
+            }
+
+            // 2. Background Image
+            const removeBtn = document.getElementById('btn-remove-bg-image');
+            if (customBgImage) {
+                document.body.style.backgroundImage = `url("${customBgImage}")`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                if (removeBtn) removeBtn.classList.remove('hidden');
+            } else {
+                document.body.style.backgroundImage = `
+                    linear-gradient(rgba(14, 165, 233, 0.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(14, 165, 233, 0.05) 1px, transparent 1px),
+                    linear-gradient(rgba(14, 165, 233, 0.02) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(14, 165, 233, 0.02) 1px, transparent 1px)
+                `;
+                document.body.style.backgroundSize = '100px 100px, 100px 100px, 20px 20px, 20px 20px';
+                document.body.style.backgroundPosition = '-1px -1px, -1px -1px, -1px -1px, -1px -1px';
+                if (removeBtn) removeBtn.classList.add('hidden');
+            }
+
+            // 3. Panel Glass Tint
+            if (customPanelColor) {
+                const hexToRgb = hex => {
+                    if (!hex) return '15, 23, 42';
+                    hex = hex.replace('#', '');
+                    if (hex.length === 3) hex = hex.split('').map(x => x + x).join('');
+                    const r = parseInt(hex.slice(0, 2), 16);
+                    const g = parseInt(hex.slice(2, 4), 16);
+                    const b = parseInt(hex.slice(4, 6), 16);
+                    return `${r}, ${g}, ${b}`;
+                };
+                document.documentElement.style.setProperty('--glass-panel-bg', `rgba(${hexToRgb(customPanelColor)}, 0.65)`);
+                const elPanelVal = document.getElementById('cfg-panel-color-val');
+                const elPanelPicker = document.getElementById('cfg-panel-color');
+                if (elPanelVal) elPanelVal.textContent = customPanelColor;
+                if (elPanelPicker) elPanelPicker.value = customPanelColor;
+            }
+
+            // 4. Accent Color
+            if (customAccentColor) {
+                document.documentElement.style.setProperty('--clinical-accent', customAccentColor);
+                const elAccentVal = document.getElementById('cfg-accent-color-val');
+                const elAccentPicker = document.getElementById('cfg-accent-color');
+                if (elAccentVal) elAccentVal.textContent = customAccentColor;
+                if (elAccentPicker) elAccentPicker.value = customAccentColor;
+            }
+        }
+
+        // Apply immediately
+        applyCustomAppearance();
+
+        // Appearance Event Listeners
+        const bgPicker = document.getElementById('cfg-bg-color');
+        const panelPicker = document.getElementById('cfg-panel-color');
+        const accentPicker = document.getElementById('cfg-accent-color');
+        const bgFileInput = document.getElementById('cfg-bg-file');
+        const bgFileBtn = document.getElementById('btn-trigger-bg-file');
+        const bgUrlInput = document.getElementById('cfg-bg-url');
+        const removeBgBtn = document.getElementById('btn-remove-bg-image');
+        const resetThemeBtn = document.getElementById('btn-reset-appearance');
+
+        if (bgPicker) {
+            bgPicker.addEventListener('input', (e) => {
+                const color = e.target.value;
+                document.body.style.backgroundColor = color;
+                document.getElementById('cfg-bg-color-val').textContent = color;
+                safeSet('cf_customBgColor', color);
+            });
+        }
+
+        if (panelPicker) {
+            panelPicker.addEventListener('input', (e) => {
+                const color = e.target.value;
+                const hexToRgb = hex => {
+                    hex = hex.replace('#', '');
+                    if (hex.length === 3) hex = hex.split('').map(x => x + x).join('');
+                    return `${parseInt(hex.slice(0,2), 16)}, ${parseInt(hex.slice(2,4), 16)}, ${parseInt(hex.slice(4,6), 16)}`;
+                };
+                document.documentElement.style.setProperty('--glass-panel-bg', `rgba(${hexToRgb(color)}, 0.65)`);
+                document.getElementById('cfg-panel-color-val').textContent = color;
+                safeSet('cf_customPanelColor', color);
+            });
+        }
+
+        if (accentPicker) {
+            accentPicker.addEventListener('input', (e) => {
+                const color = e.target.value;
+                document.documentElement.style.setProperty('--clinical-accent', color);
+                document.getElementById('cfg-accent-color-val').textContent = color;
+                safeSet('cf_customAccentColor', color);
+            });
+        }
+
+        if (bgFileBtn && bgFileInput) {
+            bgFileBtn.addEventListener('click', () => bgFileInput.click());
+            bgFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const dataUrl = ev.target.result;
+                        safeSet('cf_customBgImage', dataUrl);
+                        applyCustomAppearance();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        if (bgUrlInput) {
+            bgUrlInput.addEventListener('change', (e) => {
+                const url = e.target.value.trim();
+                if (url) {
+                    safeSet('cf_customBgImage', url);
+                    applyCustomAppearance();
+                }
+            });
+        }
+
+        if (removeBgBtn) {
+            removeBgBtn.addEventListener('click', () => {
+                safeSet('cf_customBgImage', '');
+                if (bgUrlInput) bgUrlInput.value = '';
+                applyCustomAppearance();
+            });
+        }
+
+        if (resetThemeBtn) {
+            resetThemeBtn.addEventListener('click', () => {
+                safeSet('cf_customBgColor', '');
+                safeSet('cf_customBgImage', '');
+                safeSet('cf_customPanelColor', '');
+                safeSet('cf_customAccentColor', '');
+                document.body.style.backgroundColor = '#0f172a';
+                document.documentElement.style.setProperty('--glass-panel-bg', 'rgba(15, 23, 42, 0.6)');
+                document.documentElement.style.setProperty('--clinical-accent', '#0ea5e9');
+                if (bgUrlInput) bgUrlInput.value = '';
+                applyCustomAppearance();
+            });
+        }
 
         // --- HOLIDAYS LOGIC (Argentina) ---
         const holidays = [
@@ -2341,6 +2875,8 @@
                     targetDisplay.textContent = val;
                 }
             });
+        }
+
         // Settings events
         peerEls.btnChatSettings.addEventListener('click', () => {
             peerEls.chatSettingsPanel.classList.toggle('hidden');
@@ -2375,7 +2911,6 @@
 
         function updateChatBadge() {
             if(unreadChatCount > 0 && !isChatOpen) {
-                peerEls.chatBadge.textContent = unreadChatCount > 9 ? '9+' : unreadChatCount;
                 peerEls.chatBadge.classList.remove('hidden');
                 setTimeout(() => peerEls.chatBadge.classList.remove('scale-0'), 50);
             } else {
@@ -2385,21 +2920,7 @@
         }
 
         function playPagerSound() {
-            if(typeof audioCtx === 'undefined') return;
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
-                osc.frequency.setValueAtTime(1300, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.2);
-            } catch(e) {}
+            playMessageSound();
         }
 
         function playFuerzasSound() {
@@ -2586,6 +3107,10 @@
                     appendChatMessage(data.sender || 'Amigo', data.text, false);
                 } else if (data.type === 'fuerzas') {
                     showFuerzasToast(data.sender || 'Amigo', data.message);
+                    if (!isChatOpen) {
+                        unreadChatCount++;
+                        updateChatBadge();
+                    }
                 }
             });
 
